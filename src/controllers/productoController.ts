@@ -179,7 +179,7 @@ export const deleteProducto = async (req: Request, res: Response): Promise<void>
     try {
         // Eliminar relaciones en tabla intermedia primero
         await prisma.talleProducto.deleteMany({
-            where: { productId }
+           where: { productoId: productId }
         });
         
         // Eliminar el producto

@@ -1,8 +1,9 @@
 // src/services/ordenDeCompra.service.ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient(); 
-import { MetodoPagoEnum } from "../enums/MetodoPagoEnum";
-import { EstadoOrdenEnum } from "../enums/EstadoOrdenEnum";
+import { EstadoOrdenEnum } from  "@prisma/client";
+import { MetodoPagoEnum } from "@prisma/client";
+
 
 /**
  * Para crear una orden de compra necesitas:
@@ -21,7 +22,7 @@ export const createOrdenDeCompraService = async (data: {
   estado: EstadoOrdenEnum;
   detalles: { productoId: number; cantidad: number }[];
 }) => {
-  return prisma.create({
+  return prisma.ordenDeCompra.create({
     data: {
       usuario: { connect: { id: data.usuarioId } },
       usuarioDireccion: { connect: { id: data.usuarioDireccionId } },
@@ -49,7 +50,7 @@ export const createOrdenDeCompraService = async (data: {
 };
 
 export const getAllOrdenesDeCompraService = async () => {
-  return prisma.findMany({
+  return prisma.ordenDeCompra.findMany({
     include: {
       usuario: true,
       usuarioDireccion: true,
@@ -63,7 +64,7 @@ export const getAllOrdenesDeCompraService = async () => {
 };
 
 export const getOrdenDeCompraByIdService = async (id: number) => {
-  return prisma.findUnique({
+  return prisma.ordenDeCompra.findUnique({
     where: { id },
     include: {
       usuario: true,
@@ -84,7 +85,7 @@ export const updateOrdenDeCompraService = async (
   id: number,
   nuevoEstado: EstadoOrdenEnum
 ) => {
-  return prisma.update({
+  return prisma.ordenDeCompra.update({
     where: { id },
     data: { estado: nuevoEstado },
   });
@@ -96,5 +97,5 @@ export const deleteOrdenDeCompraService = async (id: number) => {
     where: { ordenDeCompraId: id },
   });
   // Luego borramos la orden
-  return prisma.delete({ where: { id } });
+  return prisma.ordenDeCompra.delete({ where: { id } });
 };

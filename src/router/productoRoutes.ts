@@ -1,32 +1,30 @@
-import {
-  createOrdenDeCompra,
-  deleteOrdenDeCompra,
-  getAllOrdenesDeCompra,
-  getOrdenDeCompraById,
-  updateOrdenDeCompra
-} from "../controllers/ordenDeCompraController";
-
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-// Importar controladores correspondientes
+import {
+  createProducto,
+  deleteProducto,
+  getAllProductos,
+  getProductoById,
+  updateProducto
+} from "../controllers/productoController";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
 
-// Middleware de autenticación (común para todos)
+// Middleware de autenticación
 const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  
+
   if (!token) {
     res.status(401).json({ error: "No autorizado" });
     return;
   }
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if(err) {
+    if (err) {
       console.error("Error en la autenticación", err);
-      res.status(403).json({error: "Acceso denegado"});
+      res.status(403).json({ error: "Acceso denegado" });
       return;
     }
     next();
@@ -34,12 +32,12 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction): voi
 };
 
 // Rutas públicas
-router.get("/", getAllOrdenesDeCompra);
-router.get("/:id", getOrdenDeCompraById);
+router.get("/", getAllProductos);
+router.get("/:id", getProductoById);
 
-// Rutas privadas
-router.post("/", authenticateToken, createOrdenDeCompra);
-router.put("/:id", authenticateToken, updateOrdenDeCompra);
-router.delete("/:id", authenticateToken, deleteOrdenDeCompra);
+// Rutas protegidas
+router.post("/", authenticateToken, createProducto);
+router.put("/:id", authenticateToken, updateProducto);
+router.delete("/:id", authenticateToken, deleteProducto);
 
 export default router;
