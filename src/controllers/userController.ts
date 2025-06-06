@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { hashPassword } from "../services/passwordService";
-import prisma from '../models/usuario'
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {nombre, email, password } = req.body
+        const { nombre, email, password, rol } = req.body
         if (!email) {
             res.status(400).json({ message: 'El email es obligatorio' })
             return
@@ -14,13 +15,20 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
             res.status(400).json({ message: 'El password es obligatorio' })
             return
         }
+
+        if (!rol) {
+            res.status(400).json({ message: "El rol es obligatorio" });
+            return;
+        }
+
         const hashedPassword = await hashPassword(password)
-        const user = await prisma.create(
+        const user = await prisma.usuario.create(
             {
                 data: {
-                    nombre: nombre, 
+                    nombre: nombre,
                     email: email,
-                    password: hashedPassword
+                    password: hashedPassword,
+                    rol
                 }
             }
         )
@@ -30,24 +38,24 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
             res.status(400).json({ message: 'El mail ingresado ya existe' })
         }
         console.log(error)
-        res.status(500).json({ error: 'Hubo un error, pruebe más tarde' })
+        res.status(500).json({ error: 'createUser: Hubo un error, pruebe más tarde' })
     }
 }
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
     try {
-        const users = await prisma.findMany()
+        const users = await prisma.usuario.findMany()
         res.status(200).json(users);
     } catch (error: any) {
         console.log(error)
-        res.status(500).json({ error: 'Hubo un error, pruebe más tarde' })
+        res.status(500).json({ error: 'getAllUsers: Hubo un error, pruebe más tarde' })
     }
 }
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
     const userId = parseInt(req.params.id)
     try {
-        const user = await prisma.findUnique({
+        const user = await prisma.usuario.findUnique({
             where: {
                 id: userId
             }
@@ -59,7 +67,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         res.status(200).json(user)
     } catch (error: any) {
         console.log(error)
-        res.status(500).json({ error: 'Hubo un error, pruebe más tarde' })
+        res.status(500).json({ error: 'getUserById: Hubo un error, pruebe más tarde' })
     }
 }
 
@@ -79,7 +87,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             dataToUpdate.email = email
         }
 
-        const user = await prisma.update({
+        const user = await prisma.usuario.update({
             where: {
                 id: userId
             },
@@ -94,7 +102,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             res.status(404).json('Usuario no encontrado')
         } else {
             console.log(error)
-            res.status(500).json({ error: 'Hubo un error, pruebe más tarde' })
+            res.status(500).json({ error: 'updateUser: Hubo un error, pruebe más tarde' })
         }
     }
 }
@@ -102,7 +110,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
     const userId = parseInt(req.params.id)
     try {
-        await prisma.delete({
+        await prisma.usuario.delete({
             where: {
                 id: userId
             }
@@ -117,7 +125,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
             res.status(404).json('Usuario no encontrado')
         } else {
             console.log(error)
-            res.status(500).json({ error: 'Hubo un error, pruebe más tarde' })
+            res.status(500).json({ error: 'deleteUser: Hubo un error, pruebe más tarde' })
         }
     }
 }

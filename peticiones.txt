@@ -1,0 +1,322 @@
+-- register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Juan Perez",
+  "email": "juan@example.com",
+  "password": "password123",
+	"rol":  "ADMIN"
+}
+
+
+Response:
+{
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tYnJlIjoiSnVhbiBQZXJleiIsImVtYWlsIjoianVhbkBleGFtcGxlLmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzQ5MjEwODAzLCJleHAiOjE3NDkyMTQ0MDN9._mwhWb14NyUjaIrTvgdQjD6RbLrsBzh9kAoDynzI8Mk"
+}
+
+
+--- login
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan@example.com",
+  "password": "password123"
+}
+
+--- USUARIO
+
+POST http://localhost:3000/api/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Maria Lopez",
+  "email": "maria@example.com",
+  "password": "pass123"
+}
+
+GET http://localhost:3000/api/users
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/users/1
+Authorization: Bearer {{token}}
+
+PUT http://localhost:3000/api/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "nuevo@email.com"
+}
+
+DELETE http://localhost:3000/api/users/1
+Authorization: Bearer {{token}}
+
+--- Direccion
+
+POST http://localhost:3000/api/direcciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "calle": "Av. Siempre Viva 742",
+  "localidad": "Springfield",
+  "cp": "1234"
+}
+
+GET http://localhost:3000/api/direcciones
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/direcciones/{{direccionId}}
+Authorization: Bearer {{token}}
+
+PUT http://localhost:3000/api/direcciones/{{direccionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "calle": "Calle Nueva 123",
+  "localidad": "Ciudad Ejemplo",
+  "cp": "54321"
+}
+
+DELETE http://localhost:3000/api/direcciones/{{direccionId}}
+Authorization: Bearer {{token}}
+
+
+--- Usuario_Direccion
+
+POST http://localhost:3000/api/usuario-direcciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "direccionId": 1
+}
+
+GET http://localhost:3000/api/usuario-direcciones
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/usuario-direcciones/{{usuarioDireccionId}}
+Authorization: Bearer {{token}}
+
+PUT http://localhost:3000/api/usuario-direcciones/{{usuarioDireccionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "usuarioId": 2,
+  "direccionId": 3
+}
+
+DELETE http://localhost:3000/api/usuario-direcciones/{{usuarioDireccionId}}
+Authorization: Bearer {{token}}
+
+--- Producto
+
+POST http://localhost:3000/api/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Zapatillas Running",
+  "precio": 89.99,
+  "cantidad": 50,
+  "categoriaId": 1,
+  "tallesIds": [1, 2, 3]
+}
+
+GET http://localhost:3000/api/productos
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/productos/{{productoId}}
+Authorization: Bearer {{token}}
+
+PUT http://localhost:3000/api/productos/{{productoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Zapatillas Running Pro",
+  "precio": 99.99,
+  "cantidad": 30,
+  "descripcion": "Versión Pro con amortiguación mejorada.",
+  "color": "Azul",
+  "categoriaId": 2,
+  "tallesIds": [2, 4]
+}
+
+DELETE http://localhost:3000/api/productos/{{productoId}}
+Authorization: Bearer {{token}}
+
+
+---- Ordenes OrdenDeCompra
+
+POST http://localhost:3000/api/ordenes-compra
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "usuarioDireccionId": 1,
+  "precioTotal": 199.99,
+  "metodoPago": "TARJETA_CREDITO",
+  "estado": "PENDIENTE",
+  "detalles": [
+    {"productoId": 1, "cantidad": 2},
+    {"productoId": 2, "cantidad": 1}
+  ]
+}
+
+PUT http://localhost:3000/api/ordenes-compra/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estado": "ENVIADO"
+}
+
+
+GET http://localhost:3000/api/ordenes-compra
+Authorization: Bearer {{token}}
+
+
+GET http://localhost:3000/api/ordenes-compra/{{ordenId}}
+Authorization: Bearer {{token}}
+
+
+DELETE http://localhost:3000/api/ordenes-compra/{{ordenId}}
+Authorization: Bearer {{token}}
+
+
+--- Categoria
+
+  POST http://localhost:3000/categorias
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+
+  {
+    "nombre": "Calzado"
+  }
+
+GET http://localhost:3000/api/categorias
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/categorias/{{categoriaId}}
+Authorization: Bearer {{token}}
+
+PUT http://localhost:3000/api/categorias/{{categoriaId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "nombre": "Calzado Deportivo"
+}
+
+DELETE http://localhost:3000/api/categorias/{{categoriaId}}
+Authorization: Bearer {{token}}
+
+-- talles
+
+POST http://localhost:3000/api/talles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sistema": "NUMERICO",
+  "valor": "42"
+}
+
+GET http://localhost:3000/api/talles
+Authorization: Bearer {{token}}
+
+
+GET http://localhost:3000/api/talles/{{talleId}}
+Authorization: Bearer {{token}}
+
+
+PUT http://localhost:3000/api/talles/{{talleId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sistema": "NUMERICO",
+  "valor": "44"
+}
+
+DELETE http://localhost:3000/api/talles/{{talleId}}
+Authorization: Bearer {{token}}
+
+-- Detalle
+
+POST http://localhost:3000/api/detalles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ordenDeCompraId": 1,
+  "productoId": 3,
+  "cantidad": 4
+}
+
+--- Listar Detalles
+
+GET http://localhost:3000/api/detalles
+Authorization: Bearer {{token}}
+
+--- Obtener Detalle por ID
+
+GET http://localhost:3000/api/detalles/{{detalleId}}
+Authorization: Bearer {{token}}
+
+--- Actualizar Detalle
+
+PUT http://localhost:3000/api/detalles/{{detalleId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cantidad": 5
+}
+
+--- Eliminar Detalle
+
+DELETE http://localhost:3000/api/detalles/{{detalleId}}
+Authorization: Bearer {{token}}
+
+-- Tipo
+
+POST http://localhost:3000/api/tipos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Shoes"
+}
+
+--- Listar Tipos
+
+GET http://localhost:3000/api/tipos
+Authorization: Bearer {{token}}
+
+--- Obtener Tipo por ID
+
+GET http://localhost:3000/api/tipos/{{tipoId}}
+Authorization: Bearer {{token}}
+
+--- Actualizar Tipo
+
+PUT http://localhost:3000/api/tipos/{{tipoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Men Shoes"
+}
+
+--- Eliminar Tipo
+
+DELETE http://localhost:3000/api/tipos/{{tipoId}}
+Authorization: Bearer {{token}}

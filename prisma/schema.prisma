@@ -1,22 +1,138 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
-}
-
+// 1. Configuración de la fuente de datos
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// 2. Generador de Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 3. Definición de ENUMS
+enum RolEnum {
+  ADMIN
+  CLIENTE
+}
+
+enum MetodoPagoEnum {
+  TARJETA_CREDITO
+  EFECTIVO
+}
+
+enum EstadoOrdenEnum {
+  PENDIENTE
+  ENVIADA
+  CANCELADA
+}
+
+enum SistemaTalleEnum {
+  EUROPA
+  USA
+}
+
+// 4. Modelos
+
 model Usuario {
-  id       Int @id @default(autoincrement())
-  nombre   String
-  email    String @unique
-  password String
+  id                 Int                   @id @default(autoincrement())
+  nombre             String
+  email              String                @unique
+  password           String
+  rol                RolEnum
+  ordenes            OrdenDeCompra[]       @relation("Usuario_Ordenes")
+  usuarioDirecciones UsuarioDireccion[]    @relation("Usuario_Direccion")
+}
+
+model Direccion {
+  id                 Int                   @id @default(autoincrement())
+  calle              String
+  localidad          String
+  cp                 String
+  usuarioDirecciones UsuarioDireccion[]    @relation("Direccion_Usuario")
+}
+
+model UsuarioDireccion {
+  id          Int        @id @default(autoincrement())
+  usuario     Usuario    @relation("Usuario_Direccion", fields: [usuarioId], references: [id])
+  usuarioId   Int
+  direccion   Direccion  @relation("Direccion_Usuario", fields: [direccionId], references: [id])
+  direccionId Int
+  ordenes     OrdenDeCompra[]   @relation("UsuarioDireccion_Orden")  // ← Campo inverso agregado
+
+  @@unique([usuarioId, direccionId], name: "UX_usuario_direccion")
+}
+
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  productos Producto[]
+}
+
+model Tipo {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+}
+
+model Talle {
+  id                Int               @id @default(autoincrement())
+  sistema           SistemaTalleEnum
+  valor             String
+  tallesDisponibles TalleProducto[]
+
+  @@unique([sistema, valor], name: "UX_sistema_valor_talle")
+}
+
+model Producto {
+  id                Int               @id @default(autoincrement())
+  nombre            String            @unique
+  precio            Decimal           @db.Decimal(10, 2)
+  cantidad          Int
+  descripcion       String?
+  color             String?
+  categoria         Categoria         @relation(fields: [categoriaId], references: [id])
+  categoriaId       Int
+  tallesDisponibles TalleProducto[]
+  detalles          Detalle[]
+
+  @@map("producto")
+}
+
+model TalleProducto {
+  id         Int      @id @default(autoincrement())
+  producto   Producto @relation(fields: [productoId], references: [id])
+  productoId Int
+  talle      Talle    @relation(fields: [talleId], references: [id])
+  talleId    Int
+  stock      Int
+
+  @@unique([productoId, talleId], name: "UX_producto_talle")
+  @@map("talle_producto")
+}
+
+model OrdenDeCompra {
+  id                  Int                @id @default(autoincrement())
+  usuario             Usuario            @relation("Usuario_Ordenes", fields: [usuarioId], references: [id])
+  usuarioId           Int
+  usuarioDireccion    UsuarioDireccion   @relation("UsuarioDireccion_Orden", fields: [usuarioDireccionId], references: [id])
+  usuarioDireccionId  Int
+  fecha               DateTime           @default(now())
+  precioTotal         Decimal            @db.Decimal(10, 2)
+  metodoPago          MetodoPagoEnum
+  estado              EstadoOrdenEnum
+  detalles            Detalle[]          @relation("Orden_Detalles")
+
+  @@map("orden_de_compra")
+}
+
+model Detalle {
+  id               Int             @id @default(autoincrement())
+  ordenDeCompra    OrdenDeCompra   @relation("Orden_Detalles", fields: [ordenDeCompraId], references: [id])
+  ordenDeCompraId  Int
+  producto         Producto        @relation(fields: [productoId], references: [id])
+  productoId       Int
+  cantidad         Int
+
+  @@map("detalle")
 }

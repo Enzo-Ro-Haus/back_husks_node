@@ -1,4 +1,8 @@
-export interface JwtPayLoad {
-    id: number;
-    email: string;
+
+
+export interface JwtPayload {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: string;
 }
