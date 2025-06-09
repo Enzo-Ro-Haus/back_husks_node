@@ -40,6 +40,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
         console.log(error)
         res.status(500).json({ error: 'createUser: Hubo un error, pruebe más tarde' })
     }
+    return;
 }
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
@@ -50,7 +51,9 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
         console.log(error)
         res.status(500).json({ error: 'getAllUsers: Hubo un error, pruebe más tarde' })
     }
+    return;
 }
+
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
     const userId = parseInt(req.params.id)
@@ -69,6 +72,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         console.log(error)
         res.status(500).json({ error: 'getUserById: Hubo un error, pruebe más tarde' })
     }
+    return;
 }
 
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
@@ -105,6 +109,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             res.status(500).json({ error: 'updateUser: Hubo un error, pruebe más tarde' })
         }
     }
+    return;
 }
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
@@ -128,4 +133,5 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
             res.status(500).json({ error: 'deleteUser: Hubo un error, pruebe más tarde' })
         }
     }
+    return;
 }

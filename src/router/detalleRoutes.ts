@@ -1,45 +1,40 @@
+import express from "express";
 import {
   createDetalle,
-  deleteDetalle,
   getAllDetalles,
   getDetalleById,
-  updateDetalle
+  updateDetalle,
+  deleteDetalle
 } from "../controllers/detalleController";
-
-import express, { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-// Importar controladores correspondientes
+import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
+import { checkDetalleOwnership } from "../middleware/ownershipMiddleware";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
 
-// Middleware de autenticación (común para todos)
-const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  
-  if (!token) {
-    res.status(401).json({ error: "No autorizado" });
+// Sólo ADMIN lista todos
+router.get("/", authenticateToken, (req, res, next) => {
+  const user = (req as any).user;
+  if (user.rol !== "ADMIN") {
+    res.status(403).json({ error: "Requiere rol ADMIN" });
     return;
   }
+  next();
+}, getAllDetalles);
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if(err) {
-      console.error("Error en la autenticación", err);
-      res.status(403).json({error: "Acceso denegado"});
-      return;
-    }
-    next();
-  });
-};
+// ADMIN o dueño ve su detalle
+router.get("/:id", authenticateToken, checkDetalleOwnership, getDetalleById);
 
-// Rutas públicas
-router.get("/", getAllDetalles);
-router.get("/:id", getDetalleById);
+// Crear: cualquier usuario autenticado crea detalle en su orden
+// (en el controlador, fuerza detalle.ordenDeCompraId y no permitas IDs arbitrarios)
+router.post(
+  "/",
+  authenticateToken,
+  (req, res) => createDetalle(req as AuthRequest, res)
+);
 
-// Rutas privadas
-router.post("/", authenticateToken, createDetalle);
-router.put("/:id", authenticateToken, updateDetalle);
-router.delete("/:id", authenticateToken, deleteDetalle);
+
+// ADMIN o dueño puede actualizar o borrar
+router.put("/:id", authenticateToken, checkDetalleOwnership, updateDetalle);
+router.delete("/:id", authenticateToken, checkDetalleOwnership, deleteDetalle);
 
 export default router;

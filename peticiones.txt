@@ -67,7 +67,7 @@ Authorization: Bearer {{token}}
 
 --- Direccion
 
-POST http://localhost:3000/api/direcciones
+POST http://localhost:3000/direcciones
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -223,7 +223,7 @@ Authorization: Bearer {{token}}
 
 ---- Ordenes OrdenDeCompra
 
-POST http://localhost:3000/api/ordenes-compra
+POST http://localhost:3000/api/ordenes
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -263,9 +263,9 @@ PUT http://localhost:3000/api/ordenes-compra/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-{
-  "estado": "ENVIADO"
-}
+	{
+	"estado": "ENVIADO"
+	}
 
 
 GET http://localhost:3000/api/ordenes-compra

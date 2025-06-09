@@ -37,6 +37,7 @@ export const createUsuarioDireccion = async (req: Request, res: Response): Promi
             res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
         }
     }
+    return; 
 };
 
 export const getAllUsuarioDirecciones = async (req: Request, res: Response): Promise<void> => {
@@ -52,6 +53,7 @@ export const getAllUsuarioDirecciones = async (req: Request, res: Response): Pro
         console.error(error);
         res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
     }
+    return;
 };
 
 export const getUsuarioDireccionById = async (req: Request, res: Response): Promise<void> => {
@@ -75,6 +77,7 @@ export const getUsuarioDireccionById = async (req: Request, res: Response): Prom
         console.error(error);
         res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
     }
+    return;
 };
 
 export const updateUsuarioDireccion = async (req: Request, res: Response): Promise<void> => {
@@ -108,6 +111,7 @@ export const updateUsuarioDireccion = async (req: Request, res: Response): Promi
             res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
         }
     }
+    return;
 };
 
 export const deleteUsuarioDireccion = async (req: Request, res: Response): Promise<void> => {
@@ -129,4 +133,5 @@ export const deleteUsuarioDireccion = async (req: Request, res: Response): Promi
             res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
         }
     }
+    return;
 };

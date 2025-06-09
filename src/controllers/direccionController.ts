@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from '@prisma/client';
+import { AuthRequest } from "../middleware/authMiddleware";
 const prisma = new PrismaClient(); 
 
 export const createDireccion = async (req: Request, res: Response): Promise<void> => {
@@ -28,16 +29,27 @@ export const createDireccion = async (req: Request, res: Response): Promise<void
         console.error(error);
         res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
     }
+    return;
 };
 
-export const getAllDirecciones = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const direcciones = await prisma.direccion.findMany();
-        res.status(200).json(direcciones);
-    } catch (error: any) {
-        console.error(error);
-        res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
-    }
+export const getAllDirecciones = async (req: Request, res: Response) => {
+  const user = (req as AuthRequest).user;
+
+  if (user.rol === "ADMIN") {
+    const direcciones = await prisma.direccion.findMany();
+     res.json(direcciones);
+     return;
+  }
+
+  // Filtra por el usuario si no es admin
+  const relaciones = await prisma.usuarioDireccion.findMany({
+    where: { usuarioId: user.id },
+    include: { direccion: true }
+  });
+
+  const direcciones = relaciones.map((rel) => rel.direccion);
+   res.json(direcciones);
+   return;
 };
 
 export const getDireccionById = async (req: Request, res: Response): Promise<void> => {
@@ -57,6 +69,7 @@ export const getDireccionById = async (req: Request, res: Response): Promise<voi
         console.error(error);
         res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
     }
+    return;
 };
 
 export const updateDireccion = async (req: Request, res: Response): Promise<void> => {
@@ -78,6 +91,7 @@ export const updateDireccion = async (req: Request, res: Response): Promise<void
             res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
         }
     }
+    return;
 };
 
 export const deleteDireccion = async (req: Request, res: Response): Promise<void> => {
@@ -99,4 +113,5 @@ export const deleteDireccion = async (req: Request, res: Response): Promise<void
             res.status(500).json({ error: 'Hubo un error, pruebe más tarde' });
         }
     }
+    return;
 };

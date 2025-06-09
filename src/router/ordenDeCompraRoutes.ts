@@ -1,45 +1,34 @@
+import express from "express";
 import {
-  createOrdenDeCompra,
-  deleteOrdenDeCompra,
-  getAllOrdenesDeCompra,
+createOrdenDeCompra,  getAllOrdenesDeCompra,
   getOrdenDeCompraById,
-  updateOrdenDeCompra
+  updateOrdenDeCompra,
+  deleteOrdenDeCompra
 } from "../controllers/ordenDeCompraController";
-
-import express, { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-// Importar controladores correspondientes
+import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
+import { checkOrdenOwnership } from "../middleware/ownershipMiddleware";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
 
-// Middleware de autenticación (común para todos)
-const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  
-  if (!token) {
-    res.status(401).json({ error: "No autorizado" });
+// Sólo ADMIN lista todas
+router.get("/", authenticateToken, (req, res, next) => {
+  const user = (req as any).user;
+  if (user.rol !== "ADMIN") {
+    res.status(403).json({ error: "Requiere rol ADMIN" });
     return;
   }
+  next();
+}, getAllOrdenesDeCompra);
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if(err) {
-      console.error("Error en la autenticación", err);
-      res.status(403).json({error: "Acceso denegado"});
-      return;
-    }
-    next();
-  });
-};
+// ADMIN o dueño ve su orden
+router.get("/:id", authenticateToken, checkOrdenOwnership, getOrdenDeCompraById);
 
-// Rutas públicas
-router.get("/", getAllOrdenesDeCompra);
-router.get("/:id", getOrdenDeCompraById);
+// Crear: cualquier usuario autenticado crea su propia orden
+router.post("/", authenticateToken, (req, res) => createOrdenDeCompra(req as AuthRequest, res)); // ✅
 
-// Rutas privadas
-router.post("/", authenticateToken, createOrdenDeCompra);
-router.put("/:id", authenticateToken, updateOrdenDeCompra);
-router.delete("/:id", authenticateToken, deleteOrdenDeCompra);
+
+// ADMIN o dueño puede actualizar o borrar
+router.put("/:id", authenticateToken, checkOrdenOwnership, updateOrdenDeCompra);
+router.delete("/:id", authenticateToken, checkOrdenOwnership, deleteOrdenDeCompra);
 
 export default router;
